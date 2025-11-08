@@ -12,7 +12,12 @@ replicar(_, 0, []).
 replicar(X,N, [X | XS]) :- N > 0, N2 is N - 1, replicar(X,N2, XS).
 
 % % Ejercicio 3
-% transponer(_, _) :- completar("Ejercicio 3").
+% transponer([], []).
+% transponer (M, L) :- length(M, Long), between(1, Long , CantFilas), nth1(CantFilas, M, Fn), 
+%                     length(Fn, Long2), between(1, Long2, CantColumnas), nth1(CantColumnas, Fn, ElemN),
+
+transponerAux(0, [], []).
+transponerAux(N, [[E1|F1] | Ms], [E1| XS]) :- length(M, Longitud), N > 0, N =:= Longitud, transponerAux(Ms,Xs). %%idea de la auxiliar que devuelva una lista con todos los primeros elementos
 
 % % Predicado dado armarNono/3
 % armarNono(RF, RC, nono(M, RS)) :-
