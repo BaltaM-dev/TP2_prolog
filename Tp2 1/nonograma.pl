@@ -1,11 +1,8 @@
 % Ejercicio 1
 %! matriz(+F, +C, -M)
 matriz(0, _, []).
-matriz(F, C, [FILA| XS]) :- F > 0, length(C,FILA),  F2 is F - 1, matriz(F2,C, XS). 
+matriz(F, C, [FILA| XS]) :- F > 0, length(FILA,C),  F2 is F - 1, matriz(F2,C, XS). 
 
-/*generarFila(0, []).
-generarFila(F, [_|XS]) :- F > 0 , N is F - 1, generarFila(N, XS).
-*/
 
 % Ejercicio 2
 replicar(_, 0, []).
@@ -51,83 +48,62 @@ zipR([], [], []).
 zipR([R|RT], [L|LT], [r(R,L)|T]) :- zipR(RT, LT, T).
 
 % % Ejercicio 4
-% pintadasValidas([]).
-% pintadasValidas(r([R | RS]=R)) :- armarPintadas(length(L),_,_)
 
-% [R | Rs] == Rs = vacio , R = 3 -> 5 - 3 = 2 blancos
-% sum_list([R|Rs], aux) . length(l,num) num - aux.
+pintadasValidas(r(R, L)) :- auxiliar(R,L,0).
 
-% R = 4 blancos, recursion -> 2 negros => 2 blancos. 
-% replicate(x,cantidad,l1) , replicate(o,cantidadb,l2) -> append(l1,l2,l)
-% [o,o,x,x,x]. 
-%! armarPintadas(+Restriccion, ?Resultado)
-
-% armarPintadas(0, _ , []).
-% armarPintadas(_, [], L) :- blancos(L).
-% armarPintadas(T, [R1|Rs], L) :- R1 > 0,
-
-% Rs [] -> blancos(lo q queda)
-% sino, pongo un blanco y recursiono con lo q queda
 
 auxiliar([], L , _) :- length(L,N), replicar(o,N,L).
-%caso solo una restriccion
-auxiliar([R],L,Mb) :-length(L,N), MaxMb is N - R, between(Mb,MaxMb, CantBl), RestoBl is N - R - CantBl, RestoBl >= 0,
-					replicar(o,CantBl,A1), replicar(x,R,A2), replicar(o, RestoBl, A3), append(A1,A2,A4), append(A4,A3,L).
 
-auxiliar([R|Rs],L, Mb) :- length(L,N), sum_list([R|Rs],S), MaxMb is N - S, between(Mb,MaxMb, CantBl), RestoBl is N - R - CantBl, RestoBl >= 0,
-						replicar(o,CantBl,A1), replicar(x,R,A2), append(A1,A2,A3), length(L2, RestoBl), append(A3,L2,L), auxiliar(Rs,L2,1).
-
+auxiliar([R],L,Mb) :-length(L,N), MaxMb is N - R, between(Mb,MaxMb, CantBl), 
+					RestoBl is N - R - CantBl, RestoBl >= 0,
+					replicar(o,CantBl,A1), replicar(x,R,A2), replicar(o, RestoBl, A3),
+					append(A1,A2,A4), append(A4,A3,L).
 
 
-% espacios sin pintar adelante posibles -> if TotalPintadas + CantRestricciones - 1 < Longitud de mi lista 
+auxiliar([R|Rs],L, Mb) :- Rs \= [], length(L,N), sum_list([R|Rs],S), MaxMb is N - S, 
+						between(Mb,MaxMb, CantBl), RestoBl is N - R - CantBl, RestoBl >= 0,
+						replicar(o,CantBl,A1), replicar(x,R,A2), 
+						append(A1,A2,A3), length(L2, RestoBl), append(A3,L2,L),
+						auxiliar(Rs,L2,1).
+
+
+% % Ejercicio 5
+resolverNaive(nono(_,NN)) :- maplist(pintadasValidas, NN).
 
 
 
+% % Ejercicio 6
+pintarObligatorias(r(Rest,L)) :-  
+							length(L,N), pintarOblAux(Rest,N,L2), obligatorio(L2,L).
 
+pintarOblAux(Restricciones,N,Res) :- length(Fila,N), findall(Fila, 
+											pintadasValidas(r(Restricciones,Fila)),Res).
 
+combinarFilas(F1,F2,R) :- maplist(combinarCelda, F1, F2, R).
 
-
--------------------------------------------------
-
+obligatorio([R],R).
+obligatorio([H1,H2|Hs], Res) :- combinarFilas( H1, H2, Hi), obligatorio([Hi|Hs], Res).
 
 /*
+setof(AlgoQueQuieroJuntar, CondiciónQueLoGenera, ConjuntoOrdenadoSinReps).	
 
-replicar(x,3,L) -> L=[x,x,x]
-
-pv((res,celdas))
-pv(([],L)).
-pv()
-
-
-
-
-
+setof(L,
+      pintadasValidas(r(Res, L)),
+      Conjunto).
 
 */
 
-
-
-    
-
-
-    
-% L=[x,x,_,_,x], pintadasValidas(r([2,1], L)) == True 
-
-% % Ejercicio 5
-% resolverNaive(_) :-  completar("Ejercicio 5").
-
-% % Ejercicio 6
-% pintarObligatorias(_) :- completar("Ejercicio 6").
-
 % % Predicado dado combinarCelda/3
-% combinarCelda(A, B, _) :- var(A), var(B).
-% combinarCelda(A, B, _) :- nonvar(A), var(B).
-% combinarCelda(A, B, _) :- var(A), nonvar(B).
-% combinarCelda(A, B, A) :- nonvar(A), nonvar(B), A = B.
-% combinarCelda(A, B, _) :- nonvar(A), nonvar(B), A \== B.
+ combinarCelda(A, B, _) :- var(A), var(B).
+ combinarCelda(A, B, _) :- nonvar(A), var(B).
+ combinarCelda(A, B, _) :- var(A), nonvar(B).
+ combinarCelda(A, B, A) :- nonvar(A), nonvar(B), A = B.
+ combinarCelda(A, B, _) :- nonvar(A), nonvar(B), A \== B.
 
 % % Ejercicio 7
-% deducir1Pasada(_) :- completar("Ejercicio 7").
+
+deducir1Pasada(nono(_,Rs)) :- maplist(pintarObligatorias,Rs ).
+
 
 % % Predicado dado
 cantidadVariablesLibres(T, N) :- term_variables(T, LV), length(LV, N).
