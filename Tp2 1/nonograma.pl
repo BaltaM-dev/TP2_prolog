@@ -51,8 +51,8 @@ zipR([], [], []).
 zipR([R|RT], [L|LT], [r(R,L)|T]) :- zipR(RT, LT, T).
 
 % % Ejercicio 4
-pintadasValidas([]).
-pintadasValidas(r([R | RS]=R)) :- armarPintadas(length(L),_,_)
+% pintadasValidas([]).
+% pintadasValidas(r([R | RS]=R)) :- armarPintadas(length(L),_,_)
 
 % [R | Rs] == Rs = vacio , R = 3 -> 5 - 3 = 2 blancos
 % sum_list([R|Rs], aux) . length(l,num) num - aux.
@@ -62,22 +62,24 @@ pintadasValidas(r([R | RS]=R)) :- armarPintadas(length(L),_,_)
 % [o,o,x,x,x]. 
 %! armarPintadas(+Restriccion, ?Resultado)
 
-armarPintadas(0, _ , []).
-armarPintadas(_, [], L) :- blancos(L).
-armarPintadas(T, [R1|Rs], L) :- R1 > 0,
+% armarPintadas(0, _ , []).
+% armarPintadas(_, [], L) :- blancos(L).
+% armarPintadas(T, [R1|Rs], L) :- R1 > 0,
 
 % Rs [] -> blancos(lo q queda)
 % sino, pongo un blanco y recursiono con lo q queda
 
-auxiliar([], L , _) :- length(L,N), replicate(o,N,l).
-auxiliar((R|RS),L,Mb) :- replicate(o,Mb,A1), replicate(x,R,A2), append(A1,A2,A3), auxiliar(RS,A3,)
+auxiliar([], L , _) :- length(L,N), replicar(o,N,L).
+%caso solo una restriccion
+auxiliar([R],L,Mb) :-length(L,N), MaxMb is N - R, between(Mb,MaxMb, CantBl), RestoBl is N - R - CantBl, RestoBl >= 0,
+					replicar(o,CantBl,A1), replicar(x,R,A2), replicar(o, RestoBl, A3), append(A1,A2,A4), append(A4,A3,L).
+
+auxiliar([R|Rs],L, Mb) :- length(L,N), sum_list([R|Rs],S), MaxMb is N - S, between(Mb,MaxMb, CantBl), RestoBl is N - R - CantBl, RestoBl >= 0,
+						replicar(o,CantBl,A1), replicar(x,R,A2), append(A1,A2,A3), length(L2, RestoBl), append(A3,L2,L), auxiliar(Rs,L2,1).
 
 
 
 % espacios sin pintar adelante posibles -> if TotalPintadas + CantRestricciones - 1 < Longitud de mi lista 
-
-pintarCelda(0, [x]).
-pintarCelda(Pos, [X| XS]) :- Pos > 0, Pos2 is Pos-1, pintarCelda(Pos2, XS).
 
 
 
