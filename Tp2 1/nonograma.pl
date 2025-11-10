@@ -1,3 +1,6 @@
+:- set_prolog_flag(encoding, utf8).
+:- set_stream(user_output, encoding(utf8)).
+
 % Ejercicio 1
 %! matriz(+F, +C, -M)
 matriz(0, _, []).
@@ -73,25 +76,22 @@ resolverNaive(nono(_,NN)) :- maplist(pintadasValidas, NN).
 
 
 % % Ejercicio 6
-pintarObligatorias(r(Rest,L)) :-  
-							length(L,N), pintarOblAux(Rest,N,L2), obligatorio(L2,L).
 
-pintarOblAux(Restricciones,N,Res) :- length(Fila,N), findall(Fila, 
-											pintadasValidas(r(Restricciones,Fila)),Res).
+pintarObligatorias(r(Rest,L)) :-  
+							pintarOblAux(Rest,L,L2), obligatorio(L2,L).
+
+pintarOblAux(Restricciones,L,Res) :- copiarLista(L,Fila), findall(Fila,
+	pintadasValidas(r(Restricciones,Fila)),Res).
+
+copiarLista([], []). 
+copiarLista([E1|L1],[E1|L2]) :- copiarLista(L1,L2).
 
 combinarFilas(F1,F2,R) :- maplist(combinarCelda, F1, F2, R).
 
-obligatorio([R],R).
+obligatorio([R],R). 	
 obligatorio([H1,H2|Hs], Res) :- combinarFilas( H1, H2, Hi), obligatorio([Hi|Hs], Res).
 
-/*
-setof(AlgoQueQuieroJuntar, CondiciónQueLoGenera, ConjuntoOrdenadoSinReps).	
 
-setof(L,
-      pintadasValidas(r(Res, L)),
-      Conjunto).
-
-*/
 
 % % Predicado dado combinarCelda/3
  combinarCelda(A, B, _) :- var(A), var(B).
@@ -120,8 +120,10 @@ deducirVariasPasadas(NN) :-
 deducirVariasPasadasCont(_, A, A). % Si VI = VF entonces no hubo más cambios y frenamos.
 deducirVariasPasadasCont(NN, A, B) :- A =\= B, deducirVariasPasadas(NN).
 
+
 % % Ejercicio 8
-% restriccionConMenosLibres(_, _) :- completar("Ejercicio 8").
+% restriccionConMenosLibres(nono(_,RS), R) :- length(RS,N), between(0,N,Itera),
+%										cantVariablesLibres(R) < 
 
 % % Ejercicio 9
 % resolverDeduciendo(NN) :- completar("Ejercicio 9").
