@@ -124,72 +124,72 @@ test(deducirVariasPasadas, [nondet]) :-
     % pero con deducirVariasPasadas puede resolverlo completamente
     nn(3, NN2), deducirVariasPasadas(NN2), cantidadVariablesLibres(NN2, 0).
 
-% test(restriccionConMenosLibres, fail) :-
-%     % si no hay restricciones con libres, falla.
-%     restriccionConMenosLibres(
-%         nono(_, [r([], [x]), 
-%                  r([], [o])
-%                 ], _), _).
+test(restriccionConMenosLibres, fail) :-
+    % si no hay restricciones con libres, falla.
+    restriccionConMenosLibres(
+        nono(_, [r([], [x]), 
+                 r([], [o])
+                ], _), _).
 
-% test(restriccionConMenosLibres, [nondet]) :-
-%     % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
-%     %       se usa la restricción como identificador.
-%     soluciones(R,
-%         restriccionConMenosLibres(
-%             nono(_, [r([2], [A,B]),
-%                      r([1], [x,x])
-%                     ]), R), 
-%         % la restricción resultante tiene que tener alguna variable libre
-%         % por eso r([1], [x,x]) no es el resultado correcto.
-%         [r([2], [A,B])]).
+test(restriccionConMenosLibres, [nondet]) :-
+    % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
+    %       se usa la restricción como identificador.
+    soluciones(R,
+        restriccionConMenosLibres(
+            nono(_, [r([2], [A,B]),
+                     r([1], [x,x])
+                    ]), R), 
+        % la restricción resultante tiene que tener alguna variable libre
+        % por eso r([1], [x,x]) no es el resultado correcto.
+        [r([2], [A,B])]).
 
-% test(restriccionConMenosLibres, [nondet]) :-
-%     % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
-%     %       se usa la restricción como identificador.
-%     soluciones(R,
-%         restriccionConMenosLibres(
-%             nono(_, [r([1], [x,A]),
-%                      r([2], [_,_])
-%                     ]), R), 
-%         [r([1], [x,A])]).
+test(restriccionConMenosLibres, [nondet]) :-
+    % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
+    %       se usa la restricción como identificador.
+    soluciones(R,
+        restriccionConMenosLibres(
+            nono(_, [r([1], [x,A]),
+                     r([2], [_,_])
+                    ]), R), 
+        [r([1], [x,A])]).
 
-% test(restriccionConMenosLibres, [nondet]) :-
-%     % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
-%     %       se usa la restricción como identificador.
-%     soluciones(R,
-%         restriccionConMenosLibres(
-%             nono(_, [r([2], [_,_]),
-%                      r([1], [x,A])
-%                     ]), R), 
-%         [r([1], [x,A])]).
+test(restriccionConMenosLibres, [nondet]) :-
+    % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
+    %       se usa la restricción como identificador.
+    soluciones(R,
+        restriccionConMenosLibres(
+            nono(_, [r([2], [_,_]),
+                     r([1], [x,A])
+                    ]), R), 
+        [r([1], [x,A])]).
 
-% test(restriccionConMenosLibres, [nondet]) :-
-%     % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
-%     %       se usa la restricción como identificador.
-%     soluciones(R,
-%         restriccionConMenosLibres(
-%             nono(_, [r([1], [A,x]),
-%                      r([2], [x,B])
-%                     ]), R), 
-%         % Ambas restricciones tienen la misma cantidad de variables libres
-%         [r([1], [A,x]), 
-%          r([2], [x,B])
-%         ]).
+test(restriccionConMenosLibres, [nondet]) :-
+    % NOTA: asume que ni la matriz, ni la restricción afectan el resultado.
+    %       se usa la restricción como identificador.
+    soluciones(R,
+        restriccionConMenosLibres(
+            nono(_, [r([1], [A,x]),
+                     r([2], [x,B])
+                    ]), R), 
+        % Ambas restricciones tienen la misma cantidad de variables libres
+        [r([1], [A,x]), 
+         r([2], [x,B])
+        ]).
 
-% test(resolverDeduciendo, [nondet]) :-
-%     nn(10, NN), NN=nono(M, _),
-%     findall(M, resolverDeduciendo(NN), MS),
-%     assertion(term_variables(MS, [])), % todas las soluciones están totalmente instanciadas
-%     sort(MS, SMS), length(SMS, SN),
-%     assertion(SN == 36), % tiene 36 soluciones distintas
-%     length(MS, N),
-%     assertion(N == 36). % no se listan soluciones repetidas
+test(resolverDeduciendo, [nondet]) :-
+    nn(10, NN), NN=nono(M, _),
+    findall(M, resolverDeduciendo(NN), MS),
+    assertion(term_variables(MS, [])), % todas las soluciones están totalmente instanciadas
+    sort(MS, SMS), length(SMS, SN),
+    assertion(SN == 36), % tiene 36 soluciones distintas
+    length(MS, N),
+    assertion(N == 36). % no se listan soluciones repetidas
 
-% test(solucionUnica, [nondet]) :-
-%     nn(0, NN), solucionUnica(NN).
+test(solucionUnica, [nondet]) :-
+    nn(0, NN), solucionUnica(NN).
 
-% test(solucionUnica, fail) :-
-%     nn(10, NN), solucionUnica(NN).
+test(solucionUnica, fail) :-
+    nn(10, NN), solucionUnica(NN).
 
 % % Similar a findall/3 pero compara con un conjunto 
 % esperado independientemente del orden.

@@ -123,7 +123,7 @@ deducirVariasPasadasCont(NN, A, B) :- A =\= B, deducirVariasPasadas(NN).
 
 
 % % Ejercicio 8
-/*
+
 restriccionConMenosLibres(nono(_,RS), R) :- 
 	length(RS,P), 
 	between(1,P,Itera), 
@@ -131,31 +131,22 @@ restriccionConMenosLibres(nono(_,RS), R) :-
 	cantidadVariablesLibres(R,N), 
 	N>0,
 	\+ ( between(1,P,Itera2), Itera =\= Itera2, nth1(Itera2,RS,R2), cantidadVariablesLibres(R2, M) , M > 0, M < N).
-			*/	
-restriccionConMenosLibres(nono(_,RS), r(Res,L)) :-
-    member(r(Res,L), RS),
-    cantidadVariablesLibres(L, N), N > 0,
-    + ( member(r(_,L2), RS),
-         cantidadVariablesLibres(L2, N2), N2 > 0,
-         N2 < N ).			
+			
+		
 
 
 % % Ejercicio 9
 estaCompleto(nono(M,_)) :- cantidadVariablesLibres(M,0). % es como mi break, si me da true termine 
 
-compatible([],[]).
-compatible([P|Ps], [C|Cs]):- (var(C); C == P), compatible(Ps, Cs).
+% compatible([],[]).
+% compatible([P|Ps], [C|Cs]):- (var(C); C == P), compatible(Ps, Cs).
 
-resolverDeduciendo(NN) :- deducirVariasPasadas(NN), estaCompleto(NN). 
-resolverDeduciendo(NN):- 
-	deducirVariasPasadas(NN), 
-	restriccionConMenosLibres(NN, r(Res,L)),
-	length(L,N), 
-	setof(F, (length(F,N),compatible(F,L), pintadasValidas(r(Res, F))), Op), 
-	member(F, Op),  
-	L = F, resolverDeduciendo(NN).
+resolverDeduciendo(NN) :- deducirVariasPasadas(NN), resolverDeduciendoAux(NN). 
 
-
+resolverDeduciendoAux(NN):- estaCompleto(NN), !.  
+resolverDeduciendoAux(NN) :-
+	restriccionConMenosLibres(NN, R), !,
+	pintadasValidas(R), resolverDeduciendo(NN).
 
 ``
 % % Ejercicio 10
