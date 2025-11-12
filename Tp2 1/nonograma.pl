@@ -32,9 +32,6 @@ transponer([M | MS],Re) :-
     transponerAux(Lc,[M | MS],R),
     reverse(R,Re).
 
-%.--------------------------------------------------------
-%.     |  O  |                     |   O  |
-%.--------------------------------------------------------
 
 
 % % Predicado dado armarNono/3
@@ -57,12 +54,17 @@ pintadasValidas(r(R, L)) :- auxiliar(R,L,0).
 
 auxiliar([], L , _) :- length(L,N), replicar(o,N,L).
 
+%caso en el que solo hay una restriccion, pruebo las distintas formas de pintar R celdas de negros en la fila L. 
+% donde CantBl representa la cantidad de celdas pintadas de blanco al prinipio de la fila (se ubica entre Mb (minimo) y MaxMb), y luego R negras.
+% los espacios sobrantes despues de eso se pintan de blanco
 auxiliar([R],L,Mb) :-length(L,N), MaxMb is N - R, between(Mb,MaxMb, CantBl), 
 					RestoBl is N - R - CantBl, RestoBl >= 0,
 					replicar(o,CantBl,A1), replicar(x,R,A2), replicar(o, RestoBl, A3),
 					append(A1,A2,A4), append(A4,A3,L).
 
-
+% caso base donde hay mas de una restriccion, similar a lo anterior, pero ahora mientras mi cola de la lista no sea vacia, (para evitar soluciones repetidas)
+% pinto CantBl blancas al principio, luego R negras, hago recursion sobre el Resto de la fila  que me falta pintar, obligando a que el minimo de pintadas blancas
+% a poner entre una restriccion R y otra sea igual 1
 auxiliar([R|Rs],L, Mb) :- Rs \= [], length(L,N), sum_list([R|Rs],S), MaxMb is N - S, 
 						between(Mb,MaxMb, CantBl), RestoBl is N - R - CantBl, RestoBl >= 0,
 						replicar(o,CantBl,A1), replicar(x,R,A2), 
@@ -73,20 +75,20 @@ auxiliar([R|Rs],L, Mb) :- Rs \= [], length(L,N), sum_list([R|Rs],S), MaxMb is N 
 % % Ejercicio 5
 resolverNaive(nono(_,NN)) :- maplist(pintadasValidas, NN).
 
-
-
 % % Ejercicio 6
 
 pintarObligatorias(r(Rest,L)) :-  
-							pintarOblAux(Rest,L,L2), obligatorio(L2,L).
+							pintarOblAux(Rest,L,L2), obligatorio(L2,L). 
+% luego de calcular la lista de todas las posibles pintadas validas de la lista L para dicha restriccion (en OblAux),
+% calculo las celdas que son iguales en todas esas posibles pintadas, lo que las obligatorias y las agrego a mi lista de retorno.
 
-pintarOblAux(Restricciones,L,Res) :- copiarLista(L,Fila), findall(Fila,
+pintarOblAux(Restricciones,L,Res) :- copiarLista(L,Fila), findall(Fila, 
 	pintadasValidas(r(Restricciones,Fila)),Res).
 
 copiarLista([], []). 
 copiarLista([E1|L1],[E1|L2]) :- copiarLista(L1,L2).
 
-combinarFilas(F1,F2,R) :- maplist(combinarCelda, F1, F2, R).
+combinarFilas(F1,F2,R) :- maplist(combinarCelda, F1, F2, R). 
 
 obligatorio([R],R). 	
 obligatorio([H1,H2|Hs], Res) :- combinarFilas( H1, H2, Hi), obligatorio([Hi|Hs], Res).
@@ -101,9 +103,7 @@ obligatorio([H1,H2|Hs], Res) :- combinarFilas( H1, H2, Hi), obligatorio([Hi|Hs],
  combinarCelda(A, B, _) :- nonvar(A), nonvar(B), A \== B.
 
 % % Ejercicio 7
-
 deducir1Pasada(nono(_,Rs)) :- maplist(pintarObligatorias,Rs ).
-
 
 % % Predicado dado
 cantidadVariablesLibres(T, N) :- term_variables(T, LV), length(LV, N).
@@ -120,10 +120,7 @@ deducirVariasPasadas(NN) :-
 deducirVariasPasadasCont(_, A, A). 
 deducirVariasPasadasCont(NN, A, B) :- A =\= B, deducirVariasPasadas(NN).
 
-
-
 % % Ejercicio 8
-
 restriccionConMenosLibres(nono(_,RS), R) :- 
 	length(RS,P), 
 	between(1,P,Itera), 
@@ -131,15 +128,15 @@ restriccionConMenosLibres(nono(_,RS), R) :-
 	cantidadVariablesLibres(R,N), 
 	N>0,
 	\+ ( between(1,P,Itera2), Itera =\= Itera2, nth1(Itera2,RS,R2), cantidadVariablesLibres(R2, M) , M > 0, M < N).
-			
+	
+	% basicamente decimo que R es una restriccion de RS con al menos una variable libre y NO existe otra restriccion con menos variables libres que ella (por eso el uso del not)
+
 		
 
 
 % % Ejercicio 9
 estaCompleto(nono(M,_)) :- cantidadVariablesLibres(M,0). % es como mi break, si me da true termine 
 
-% compatible([],[]).
-% compatible([P|Ps], [C|Cs]):- (var(C); C == P), compatible(Ps, Cs).
 
 resolverDeduciendo(NN) :- deducirVariasPasadas(NN), resolverDeduciendoAux(NN). 
 
@@ -148,9 +145,56 @@ resolverDeduciendoAux(NN) :-
 	restriccionConMenosLibres(NN, R), !,
 	pintadasValidas(R), resolverDeduciendo(NN).
 
-``
+
 % % Ejercicio 10
-solucionUnica(NN) :- findall(NN, resolverDeduciendo(NN), Res), length(Res, Cant), Cant =:= 1.
+solucionUnica(NN) :- findall(NN, resolverDeduciendo(NN),Res), length(Res,1).
+/*
+Ejercicio 11 
+
+
+N  | Tamaño |  ¿ Tiene Solucion Unica ? | ¿Es Deducible Sin Backtraking ?
+0  |   2x3 	|			Si 				|				Si 
+1  |   5x5 	|			Si 				|				Si 
+2  |   5x5 	|			Si 				|				Si 
+3  |  10x10 |			Si 				|				Si 
+4  |   5x5 	|			Si 				|				Si 
+5  |   5x5 	|			Si 				|				No 
+6  |   5x5 	|			Si 				|				Si 
+7  |  10x10 |			Si 				|				Si 
+8  |  10x10 |			Si 				|				Si 
+9  |   5x5 	|			Si 				|				Si 
+10 |   5x5 	|			No 				|				No 
+11 |  10x10 |			Si 				|				Si 
+12 |  15x15 |			Si 				|				Si 
+13 |  11x5  |			Si 				|				No 
+14 |   4x4 	|			Si 				|				No
+
+Para calcular el tamaño de cada nono usamos la consulta,  ?-tamaño(N, (F,C)).  Probamos los nonos de 0<=N<=14 y usamos los siguientes predicados a continuacion:
+
+tamaño(N, (F, C)) :- nn(N, nono(M, _)), matriz2(F, C, M).
+
+matriz2(0,0,[]).
+matriz2(F,C,[Fila|Xs]) :- length(Fila,C), length([Fila|Xs], F). --> similar al ej1 pero con la diferencia que F y C se pasan sin instanciar
+
+Para calcular si tiene Solucion Unica usamos la consulta , ?-nn(N, NN) , solucionUnica(NN).  Probamos los nonos de 0<=N<=14
+
+Para calcular si  es Deducible Sin Backtraking ?- nn(N, NN), deducirVariasPasadas(NN), cantidadVariablesLibres(NN, 0). Probamos los nonos de 0<=N<=14.
+Si despues de aplicar varias pasadas el nonograma quedó completo, es decir no quedaron variables libres, quiere decir que se pudo resolver sin necesidad de explorar soluciones
+alternativas usando el predicado resolverDeduciendo (el cual implementa backTracking)
+
+*/
+
+/* Ejercicio 12 
+El segundo argumento no es reversible porque la segunda cláusula exige que N ya esté instanciado para poder chequear N > 0 y calcular N2 is N-1. 
+Si N viene libre, esa cláusula no puede usarse y te quedás solo con el caso base.
+Si N es variable, la cláusula recursiva no se puede usar y solo se obtiene la solución trivial del caso base (N=0, L=[]). Por lo tanto, la consulta 
+replicar(+Elem, -N, -Lista) no genera todas las soluciones, y replicar(+Elem, -N, +Lista) falla salvo el caso Lista = [].
+*/
+
+
+
+
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %                              %
 % %    Ejemplos de nonogramas    %
